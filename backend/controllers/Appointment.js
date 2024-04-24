@@ -71,6 +71,7 @@ const updateAppointmentToPaid = asyncHandler(async (req, res) => {
     "user doctor"
   );
 
+  const user = await User.findById(appointment.user._id);
   const { id, status, update_time, email_address } = req.body;
 
   const payment = new Payment({ id, status, update_time, email_address });
@@ -85,6 +86,13 @@ const updateAppointmentToPaid = asyncHandler(async (req, res) => {
     appointment.paymentID = createdPayment._id;
     appointment.paidAt = Date.now();
     appointment.Status = "Paid";
+
+    const item = {
+      slot: appointment.details.appointmentTime,
+      date: appointment.date,
+    };
+    user.appointments.push(item);
+    const updateduser = await user.save();
     const updatedappointment = await appointment.save();
 
     var mailOptions = {
@@ -100,7 +108,7 @@ const updateAppointmentToPaid = asyncHandler(async (req, res) => {
       }
     });
 
-    res.json(updatedappointment);
+    res.json({ updateduser, updatedappointment });
   } else {
     res.status(404);
     throw new Error("appointment not found");

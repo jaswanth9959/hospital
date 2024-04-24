@@ -52,6 +52,13 @@ const userSchema = new mongoose.Schema(
       default: "user",
     },
     feedBack: [feedBackSchema],
+
+    appointments: [
+      {
+        slot: String,
+        date: Date,
+      },
+    ],
   },
   { timestamps: true }
 );

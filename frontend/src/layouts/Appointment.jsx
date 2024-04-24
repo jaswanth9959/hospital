@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Row, Col, Card, Container, Badge, Button } from "react-bootstrap";
 import { PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js";
 import { LinkContainer } from "react-router-bootstrap";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
 import {
   useGetClientIDQuery,
@@ -11,7 +11,9 @@ import {
   useUpdateStatusMutation,
   useCancelAppointmentMutation,
 } from "../slices/appointmentsApiSlice";
+import { setCredentials } from "../slices/authSlice";
 function Appointment() {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id: appointmentId } = useParams();
   const {
@@ -55,10 +57,17 @@ function Appointment() {
     }
   }, [appointment, paypal, paypalDispatch, loadingPayPal, errorPayPal]);
 
+  function onApproveTest() {
+    payAppointment({ appointmentId, details: { payer: {} } });
+    refetch();
+    window.alert("payment successful");
+  }
+
   function onApprove(data, actions) {
     return actions.order.capture().then(async function (details) {
       try {
-        await payAppointment({ appointmentId, details });
+        const res = await payAppointment({ appointmentId, details }).unwrap();
+        dispatch(setCredentials({ ...res.updateduser }));
         refetch();
         window.alert("payment successful");
       } catch (err) {
@@ -206,6 +215,7 @@ function Appointment() {
                                 onError={onError}
                               ></PayPalButtons>
                             </div>
+                            <Button onClick={onApproveTest}>Pay</Button>
                           </div>
                         )}
                       </div>

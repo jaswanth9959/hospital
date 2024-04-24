@@ -43,6 +43,7 @@ const registerUser = asyncHandler(async (req, res) => {
       email: user.email,
       phone: user.phone,
       role: "user",
+      appointments: user.appointments,
       token,
     });
   } else {
@@ -78,6 +79,7 @@ const loginUser = asyncHandler(async (req, res) => {
       email: user.email,
       role: user.role,
       phone: user.phone,
+      appointments: user.appointments,
       token,
     });
   } else {

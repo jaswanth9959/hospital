@@ -5,7 +5,9 @@ import { Card, Col, Row, Button } from "react-bootstrap";
 import { useGetStaffByIDQuery } from "../slices/doctorsApiSlice";
 import { useState } from "react";
 import { addTocart } from "../slices/cartSlice";
+import { useSelector } from "react-redux";
 function DoctorInfo() {
+  const { userInfo } = useSelector((state) => state.auth);
   const [selectedSlot, setSelectedSlot] = useState([]);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -14,8 +16,19 @@ function DoctorInfo() {
   const dates = JSON.parse(localStorage.getItem("dates"));
   const apponitmentDate = new Date(dates).toLocaleDateString("en-US");
 
-  const isAvailable = (roomNumber) => {
-    const isFound = roomNumber.unavailableDates.some((date) =>
+  const check = (slot) => {
+    const t = userInfo.appointments.map(
+      (app) =>
+        app.slot === slot.slot &&
+        (apponitmentDate === new Date(app.date).toLocaleDateString("en-US")
+          ? true
+          : false)
+    );
+    return t[0];
+  };
+
+  const isAvailable = (slot) => {
+    const isFound = slot.unavailableDates.some((date) =>
       apponitmentDate.includes(new Date(date).toLocaleDateString("en-US"))
     );
 
@@ -91,15 +104,25 @@ function DoctorInfo() {
                             type="checkbox"
                             value={slot._id}
                             onChange={handleSelect}
-                            disabled={!isAvailable(slot)}
+                            disabled={!isAvailable(slot) || check(slot)}
                           />
                           <label>{slot.slot} </label>
                           <p>
                             <strong>
                               {" "}
-                              {isAvailable(slot)
+                              {/* {isAvailable(slot)
                                 ? "(Available)"
-                                : "(Not Available)"}
+                                : "(Not Available)"} */}
+                              {check(slot) ? (
+                                <p>
+                                  "You Already another appointment during this
+                                  time"
+                                </p>
+                              ) : isAvailable(slot) ? (
+                                "(Available)"
+                              ) : (
+                                "(Not Available)"
+                              )}
                             </strong>
                           </p>
                         </div>
