@@ -4,6 +4,7 @@ import Appointment from "../models/Appointment.js";
 import Doctor from "../models/Doctor.js";
 import Payment from "../models/payment.js";
 import nodemailer from "nodemailer";
+import Specialization from "../models/Specialization.js";
 
 var transporter = nodemailer.createTransport({
   service: "gmail",
@@ -86,10 +87,13 @@ const updateAppointmentToPaid = asyncHandler(async (req, res) => {
     appointment.paymentID = createdPayment._id;
     appointment.paidAt = Date.now();
     appointment.Status = "Paid";
-
+    const spec = await Specialization.findById(
+      appointment.doctor.specialization
+    );
     const item = {
       slot: appointment.details.appointmentTime,
       date: appointment.date,
+      atype: spec.name,
     };
     user.appointments.push(item);
     const updateduser = await user.save();

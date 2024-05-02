@@ -57,6 +57,7 @@ const userSchema = new mongoose.Schema(
       {
         slot: String,
         date: Date,
+        atype: String,
       },
     ],
   },

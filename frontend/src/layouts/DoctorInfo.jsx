@@ -16,6 +16,18 @@ function DoctorInfo() {
   const dates = JSON.parse(localStorage.getItem("dates"));
   const apponitmentDate = new Date(dates).toLocaleDateString("en-US");
 
+  const check2 = () => {
+    const t = userInfo.appointments.map((app) =>
+      app.atype === doctor?.specialization?.name &&
+      apponitmentDate === new Date(app.date).toLocaleDateString("en-US")
+        ? app.slot
+        : false
+    );
+    return t[0];
+  };
+
+  const dup = check2();
+
   const check = (slot) => {
     const t = userInfo.appointments.map(
       (app) =>
@@ -91,50 +103,57 @@ function DoctorInfo() {
                     <h2>Specialization: {doctor.specialization.name}</h2>
                   </Card.Text>
                 </Card.Body>
-                <Card.Body className="my-3">
-                  <Col className="py-3">
-                    <strong>Select Time Slot For Appointment:</strong>
-                  </Col>
-                  <Col className="py-3">
-                    <div className="rSelectRooms">
-                      {doctor.schedule.map((slot) => (
-                        <div className="room" key={slot.slot}>
-                          <input
-                            style={{ width: "20px", height: "20px" }}
-                            type="checkbox"
-                            value={slot._id}
-                            onChange={handleSelect}
-                            disabled={!isAvailable(slot) || check(slot)}
-                          />
-                          <label>{slot.slot} </label>
-                          <p>
-                            <strong>
-                              {" "}
-                              {/* {isAvailable(slot)
+
+                {dup ? (
+                  `You Already Have Appointment with ${doctor.specialization.name} on ${apponitmentDate} at ${dup}`
+                ) : (
+                  <>
+                    <Card.Body className="my-3">
+                      <Col className="py-3">
+                        <strong>Select Time Slot For Appointment:</strong>
+                      </Col>
+                      <Col className="py-3">
+                        <div className="rSelectRooms">
+                          {doctor.schedule.map((slot) => (
+                            <div className="room" key={slot.slot}>
+                              <input
+                                style={{ width: "20px", height: "20px" }}
+                                type="checkbox"
+                                value={slot._id}
+                                onChange={handleSelect}
+                                disabled={!isAvailable(slot) || check(slot)}
+                              />
+                              <label>{slot.slot} </label>
+                              <p>
+                                <strong>
+                                  {" "}
+                                  {/* {isAvailable(slot)
                                 ? "(Available)"
                                 : "(Not Available)"} */}
-                              {check(slot) ? (
-                                <p>
-                                  "You Already another appointment during this
-                                  time"
-                                </p>
-                              ) : isAvailable(slot) ? (
-                                "(Available)"
-                              ) : (
-                                "(Not Available)"
-                              )}
-                            </strong>
-                          </p>
+                                  {check(slot) ? (
+                                    <p>
+                                      "You Already another appointment during
+                                      this time"
+                                    </p>
+                                  ) : isAvailable(slot) ? (
+                                    "(Available)"
+                                  ) : (
+                                    "(Not Available)"
+                                  )}
+                                </strong>
+                              </p>
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  </Col>
-                </Card.Body>
-                <Card.Body>
-                  <Button variant="dark" onClick={handleClick}>
-                    Confirm
-                  </Button>
-                </Card.Body>
+                      </Col>
+                    </Card.Body>
+                    <Card.Body>
+                      <Button variant="dark" onClick={handleClick}>
+                        Confirm
+                      </Button>
+                    </Card.Body>
+                  </>
+                )}
               </Card>
             </Col>
           </Row>
